@@ -1,4 +1,5 @@
 Chess Lab - Project for ECE 30862 - OOP in C++
+
 Contributors: Sharvari Deshpande and Saahil Suresh
 
 Method for Development: 
