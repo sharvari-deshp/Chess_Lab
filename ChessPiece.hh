@@ -9,7 +9,21 @@
 
   class ChessPiece
   {
+  protected:
+    ChessBoard &board;
+    Color color;
+    Type type;
+    int row;
+    int column;
+
+    void setType(Type newType);
+
+  
   public:
+
+    ChessBoard &getBoard() { return board; }
+
+    bool isPathClear(int toRow, int toColumn);
     /**
      * @brief
      * Constructor for ChessPiece.
