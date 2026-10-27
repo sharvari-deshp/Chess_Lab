@@ -13,7 +13,7 @@ namespace Student
     {
     public:
         BishopPiece(ChessBoard &board, Color color, int row, int column):ChessPiece(board, color, row, column) {
-
+            setType(Bishop);
         }
         bool canMoveToLocation(int toRow, int toColumn) override;
         const char *toString() override;
