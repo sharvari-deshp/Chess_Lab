@@ -73,6 +73,19 @@
     int getColumn();
 
     /**
+     * @brief
+     * steps from current position toward  destination every one 
+     *SQuare - only meaningful for straight/diagonal lines
+     * @param toRow
+     *row of the destination position
+     * @param toColumn
+     *column of destination position of player
+     * @return
+     * true if every square strictly between source + destination is empty
+     */
+    bool isPathClear(int toRow, int toColumn);
+
+    /**
      * @brief Sets row and column numbers of piece.
      * @param row
      * The new row number of the piece.
