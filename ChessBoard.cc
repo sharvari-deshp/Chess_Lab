@@ -261,12 +261,59 @@ bool ChessBoard::isValidMove(int fromRow, int fromColumn, int toRow, int toColum
 }
 
 // Part 2 functions
-bool ChessBoard::movePiece(int, int, int, int)
+bool ChessBoard::movePiece(int fromRow, int fromColumn, int toRow, int toColumn)
 {
-    return false;
+    // Check if both positions are on the board
+    if (!inBounds(fromRow, fromColumn) || !inBounds(toRow, toColumn))
+    {
+        return false;
+    }
+
+    // Check if the move is valid
+    if (!isValidMove(fromRow, fromColumn, toRow, toColumn))
+    {
+        return false;
+    }
+
+    ChessPiece *piece = board[fromRow][fromColumn];
+
+    // Check if it is the piece's turn
+    if (piece == nullptr || piece->getColor() != turn)
+    {
+        return false;
+    }
+
+    // Delete the captured piece if there is one
+    if (board[toRow][toColumn] != nullptr)
+    {
+        delete board[toRow][toColumn];
+    }
+
+    // Move the piece to its new position
+    board[toRow][toColumn] = piece;
+    board[fromRow][fromColumn] = nullptr;
+
+    piece->setPosition(toRow, toColumn);
+
+    // Switch turns
+    turn = (turn == White) ? Black : White;
+
+    return true;
 }
 
 bool ChessBoard::isPieceUnderThreat(int, int)
 {
     return false;
 }
+
+bool ChessBoard::inBounds(int r, int c)
+{
+    if (r < 0 || r >= numRows || c < 0 || c >= numCols)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+
