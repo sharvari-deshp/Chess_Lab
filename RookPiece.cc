@@ -5,8 +5,10 @@ using Student::RookPiece;
 
 bool RookPiece::canMoveToLocation(int toRow, int toColumn)
 {
-    //one of row/column should change
     if ((toRow==getRow()) == (toColumn==getColumn()))
+        return false;
+
+    if (!canLandOn(toRow, toColumn))
         return false;
 
     return isPathClear(toRow, toColumn);
