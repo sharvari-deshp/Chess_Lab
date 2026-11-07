@@ -8,7 +8,10 @@ bool BishopPiece::canMoveToLocation(int toRow, int toColumn)
     int dRow = toRow-getRow();
     int dCol = toColumn-getColumn();
     if ((dRow == 0) || (dRow != dCol && dRow != -dCol)){
-        return false; 
+        return false;
+    }
+    if (!canLandOn(toRow,toColumn)){
+        return false;
     }
     return isPathClear(toRow,toColumn);
 }
