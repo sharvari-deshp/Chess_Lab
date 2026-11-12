@@ -216,7 +216,10 @@ bool ChessBoard::isValidMove(int fromRow, int fromColumn, int toRow, int toColum
     if (piece == nullptr)
         return false;
 
-    return piece->canMoveToLocation(toRow, toColumn);
+    //if piece cannot move to location
+    if (!piece->canMoveToLocation(toRow, toColumn))
+        return false;
+    return (!wouldLeaveKingInCheck(fromRow, fromColumn, toRow, toColumn));
 }
 
 bool ChessBoard::movePiece(int fromRow, int fromColumn, int toRow, int toColumn)
@@ -288,4 +291,26 @@ bool ChessBoard::inBounds(int r, int c)
     return true;
 }
 
+bool ChessBoard::isKingInCheck(Color)
+{return false;
+}
 
+bool ChessBoard::wouldLeaveKingInCheck(int fromRow, int fromCol, int toRow, int toCol)
+{
+    ChessPiece *moving =board[fromRow][fromCol];
+    ChessPiece *captured= board[toRow][toCol];
+
+    board[toRow][toCol] = moving;
+    board[fromRow][fromCol] = nullptr;
+    moving->setPosition(toRow, toCol);
+
+    //get color
+    bool inCheck = isKingInCheck(moving->getColor());
+
+    //set pos
+    board[fromRow][fromCol] =moving;
+    board[toRow][toCol] = captured;
+    moving->setPosition(fromRow, fromCol);
+
+    return inCheck;
+}
