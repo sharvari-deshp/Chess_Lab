@@ -17,6 +17,8 @@ namespace Student
         Color turn = White;
 
         bool inBounds(int r, int c);
+        bool isKingInCheck(Color color);
+        bool wouldLeaveKingInCheck(int fromRow, int fromCol, int toRow, int toCol);
         /**
          * @brief
          * A 2D vector of pointers to ChessPiece objects.
