@@ -505,6 +505,185 @@ void test_king_threats()
 }
 
 
+void test_pinned_rook()
+{
+    Student::ChessBoard b(5, 5);
+    b.createChessPiece(White, King, 4, 2);
+    b.createChessPiece(White, Rook, 3, 2);
+    b.createChessPiece(Black, Rook, 0, 2);
+
+    assert(b.isValidMove(3, 2, 2, 2));
+    assert(b.isValidMove(3, 2, 1, 2));
+    assert(b.isValidMove(3, 2, 0, 2));
+    assert(!b.isValidMove(3, 2, 3, 0));
+    assert(!b.isValidMove(3, 2, 3, 1));
+    assert(!b.isValidMove(3, 2, 3, 4));
+    assert(b.getPiece(3, 2)->canMoveToLocation(3, 0));
+
+    assert(!b.movePiece(3, 2, 3, 0));
+    assert(b.getPiece(3, 2) != nullptr);
+    assert(b.getPiece(3, 0) == nullptr);
+    assert(b.movePiece(3, 2, 1, 2));
+    assert(b.getPiece(1, 2)->getType() == Rook);
+}
+
+void test_king_cannot_step_into_attack()
+{
+    Student::ChessBoard b(5, 5);
+    b.createChessPiece(White, King, 4, 0);
+    b.createChessPiece(Black, Rook, 0, 1);
+    b.createChessPiece(Black, Bishop, 1, 2);
+
+    assert(!b.isValidMove(4, 0, 4, 1));
+    assert(!b.isValidMove(4, 0, 3, 1));
+    assert(!b.isValidMove(4, 0, 3, 0));
+    assert(b.getPiece(4, 0)->canMoveToLocation(4, 1));
+    assert(b.getPiece(4, 0)->canMoveToLocation(3, 1));
+    assert(b.getPiece(4, 0)->canMoveToLocation(3, 0));
+    assert(!b.movePiece(4, 0, 3, 0));
+
+    Student::ChessBoard s(5, 5);
+    s.createChessPiece(White, King, 4, 4);
+    s.createChessPiece(Black, Bishop, 1, 1);
+    assert(!s.isValidMove(4, 4, 3, 3));
+    assert(s.isValidMove(4, 4, 3, 4));
+    assert(s.isValidMove(4, 4, 4, 3));
+}
+
+void test_block_or_capture_check()
+{
+    Student::ChessBoard b(5, 5);
+    b.createChessPiece(White, King, 4, 0);
+    b.createChessPiece(Black, Rook, 0, 0);
+    b.createChessPiece(White, Bishop, 4, 2);
+    b.createChessPiece(White, Rook, 0, 4);
+
+    assert(b.isPieceUnderThreat(4, 0));
+    assert(b.isValidMove(4, 2, 2, 0));
+    assert(b.isValidMove(0, 4, 0, 0));
+    assert(!b.isValidMove(4, 2, 3, 3));
+    assert(!b.isValidMove(0, 4, 1, 4));
+    assert(!b.isValidMove(4, 0, 3, 0));
+    assert(b.isValidMove(4, 0, 4, 1));
+
+    assert(!b.movePiece(4, 2, 3, 3));
+    assert(b.movePiece(4, 2, 2, 0));
+    assert(!b.isPieceUnderThreat(4, 0));
+
+    Student::ChessBoard s(5, 5);
+    s.createChessPiece(White, King, 4, 0);
+    s.createChessPiece(Black, Rook, 0, 0);
+    s.createChessPiece(White, Rook, 0, 4);
+    assert(s.movePiece(0, 4, 0, 0));
+    assert(s.getPiece(0, 0)->getColor() == White);
+    assert(!s.isPieceUnderThreat(4, 0));
+}
+
+void test_king_cannot_capture_defended()
+{
+    Student::ChessBoard b(5, 5);
+    b.createChessPiece(White, King, 4, 2);
+    b.createChessPiece(Black, Rook, 3, 2);
+    b.createChessPiece(Black, Rook, 0, 2);
+    assert(!b.isValidMove(4, 2, 3, 2));
+    assert(b.getPiece(4, 2)->canMoveToLocation(3, 2));
+
+    Student::ChessBoard s(5, 5);
+    s.createChessPiece(White, King, 4, 2);
+    s.createChessPiece(Black, Bishop, 3, 3);
+    s.createChessPiece(Black, Pawn, 2, 4);
+    assert(!s.isValidMove(4, 2, 3, 3));
+
+    Student::ChessBoard k(5, 5);
+    k.createChessPiece(White, King, 4, 2);
+    k.createChessPiece(Black, Rook, 3, 2);
+    assert(k.isValidMove(4, 2, 3, 2));
+    assert(k.movePiece(4, 2, 3, 2));
+    assert(k.getPiece(3, 2)->getType() == King);
+    assert(k.getPiece(4, 2) == nullptr);
+}
+
+void test_valid_scan_restores_board()
+{
+    Student::ChessBoard b(5, 5);
+    b.createChessPiece(White, King, 4, 2);
+    b.createChessPiece(White, Rook, 3, 2);
+    b.createChessPiece(White, Pawn, 3, 0);
+    b.createChessPiece(White, Bishop, 4, 4);
+    b.createChessPiece(Black, King, 0, 4);
+    b.createChessPiece(Black, Rook, 0, 2);
+    b.createChessPiece(Black, Bishop, 1, 1);
+    b.createChessPiece(Black, Pawn, 2, 1);
+
+    std::vector<Student::ChessPiece *> pieces;
+    std::vector<int> rows;
+    std::vector<int> cols;
+    for (int r = 0; r < 5; r++)
+    {
+        for (int c = 0; c < 5; c++)
+        {
+            Student::ChessPiece *piece = b.getPiece(r, c);
+            pieces.push_back(piece);
+            rows.push_back(piece == nullptr ? -1 : piece->getRow());
+            cols.push_back(piece == nullptr ? -1 : piece->getColumn());
+        }
+    }
+
+    for (int fr = -1; fr <= 5; fr++)
+        for (int fc = -1; fc <= 5; fc++)
+            for (int tr = -1; tr <= 5; tr++)
+                for (int tc = -1; tc <= 5; tc++)
+                    b.isValidMove(fr, fc, tr, tc);
+
+    for (int r = 0; r < 5; r++)
+    {
+        for (int c = 0; c < 5; c++)
+        {
+            Student::ChessPiece *piece = b.getPiece(r, c);
+            assert(piece == pieces[r * 5 + c]);
+            if (piece != nullptr)
+            {
+                assert(piece->getRow() == rows[r * 5 + c]);
+                assert(piece->getColumn() == cols[r * 5 + c]);
+                assert(piece->getRow() == r);
+                assert(piece->getColumn() == c);
+            }
+        }
+    }
+}
+
+void test_no_kings_unchanged()
+{
+    Student::ChessBoard b(5, 5);
+    b.createChessPiece(White, Rook, 3, 2);
+    b.createChessPiece(Black, Rook, 0, 2);
+    b.createChessPiece(White, Pawn, 3, 4);
+    b.createChessPiece(Black, Bishop, 1, 1);
+
+    assert(b.isValidMove(3, 2, 3, 0));
+    assert(b.isValidMove(3, 2, 3, 1));
+    for (int fr = 0; fr < 5; fr++)
+    {
+        for (int fc = 0; fc < 5; fc++)
+        {
+            Student::ChessPiece *piece = b.getPiece(fr, fc);
+            for (int tr = 0; tr < 5; tr++)
+            {
+                for (int tc = 0; tc < 5; tc++)
+                {
+                    bool expected = piece != nullptr && piece->canMoveToLocation(tr, tc);
+                    assert(b.isValidMove(fr, fc, tr, tc) == expected);
+                }
+            }
+        }
+    }
+
+    assert(b.movePiece(3, 2, 3, 0));
+    assert(b.movePiece(0, 2, 3, 2));
+    assert(b.getPiece(3, 2)->getColor() == Black);
+    assert(b.isPieceUnderThreat(3, 2));
+}
+
 int main()
 {
     test_part1_4x4_1();
@@ -526,5 +705,11 @@ int main()
     test_king_movement();
     test_king_captures();
     test_king_threats();
+    test_pinned_rook();
+    test_king_cannot_step_into_attack();
+    test_block_or_capture_check();
+    test_king_cannot_capture_defended();
+    test_valid_scan_restores_board();
+    test_no_kings_unchanged();
     return EXIT_SUCCESS;
 }
