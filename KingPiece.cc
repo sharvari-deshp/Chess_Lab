@@ -9,11 +9,25 @@ KingPiece::KingPiece(ChessBoard &board, Color color, int row, int column)
     setType(King);
 }
 
-bool KingPiece::canMoveToLocation(int, int)
+bool KingPiece::canMoveToLocation(int toRow, int toColumn)
 {
-    return false;
-}
+    int dRow = toRow - getRow();
+    int dCol = toColumn - getColumn();
 
+    // King cannot stay in the same square
+    if (dRow == 0 && dCol == 0)
+    {
+        return false;
+    }
+
+    // King can only move one square in any direction
+    if (dRow > 1 || dRow < -1 || dCol > 1 || dCol < -1)
+    {
+        return false;
+    }
+
+    return canLandOn(toRow, toColumn);
+}
 const char *KingPiece::toString()
 {
     if (getColor() == White)
