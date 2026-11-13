@@ -291,8 +291,26 @@ bool ChessBoard::inBounds(int r, int c)
     return true;
 }
 
-bool ChessBoard::isKingInCheck(Color)
-{return false;
+// checks if the kingpiece is in check
+bool ChessBoard::isKingInCheck(Color color)
+{
+    for (int r = 0; r < numRows; r++)
+    {
+        for (int c = 0; c < numCols; c++)
+        {
+            ChessPiece *piece = board[r][c];
+
+            if (piece != nullptr &&
+                piece->getType() == King &&
+                piece->getColor() == color &&
+                isPieceUnderThreat(r, c))
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 bool ChessBoard::wouldLeaveKingInCheck(int fromRow, int fromCol, int toRow, int toCol)
