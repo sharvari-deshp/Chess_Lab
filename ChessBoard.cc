@@ -101,7 +101,6 @@ bool ChessPiece::isPathClear(int toRow, int toColumn)
     int absRow = dRow < 0 ? -dRow : dRow;
     int absCol = dCol < 0 ? -dCol : dCol;
 
-    // Movement must be straight or diagonal
     if (dRow != 0 && dCol != 0 && absRow != absCol)
     {
         return false;
@@ -131,7 +130,6 @@ bool ChessPiece::isPathClear(int toRow, int toColumn)
     int r = row + rowStep;
     int c = column + colStep;
 
-    // Check each square between the start and end
     while (r != toRow || c != toColumn)
     {
         if (board.getPiece(r, c) != nullptr)
@@ -146,32 +144,15 @@ bool ChessPiece::isPathClear(int toRow, int toColumn)
     return true;
 }
 
-// KingPiece functions
-
-KingPiece::KingPiece(ChessBoard &board, Color color, int row, int column)
-    : ChessPiece(board, color, row, column)
+bool ChessPiece::canLandOn(int toRow, int toColumn)
 {
-    setType(King);
+    if (toRow < 0 || toRow >= board.getNumRows() || toColumn < 0 || toColumn >= board.getNumCols())
+        return false;
+
+    ChessPiece *target = board.getPiece(toRow, toColumn);
+    return target == nullptr || target->getColor() != color;
 }
 
-bool KingPiece::canMoveToLocation(int, int)
-{
-    return false;
-}
-
-const char *KingPiece::toString()
-{
-    if (getColor() == White)
-    {
-        return "♔";
-    }
-    else
-    {
-        return "♚";
-    }
-}
-
-// ChessBoard functions
 
 ChessBoard::ChessBoard(int numRow, int numCol)
     : numRows(numRow), numCols(numCol),
@@ -228,48 +209,23 @@ void ChessBoard::createChessPiece(Color color, Type type, int row, int column)
 
 bool ChessBoard::isValidMove(int fromRow, int fromColumn, int toRow, int toColumn)
 {
-    // Make sure both squares are inside the board
-    if (fromRow < 0 || fromRow >= numRows ||
-        fromColumn < 0 || fromColumn >= numCols ||
-        toRow < 0 || toRow >= numRows ||
-        toColumn < 0 || toColumn >= numCols)
-    {
+    if (!inBounds(fromRow, fromColumn) || !inBounds(toRow, toColumn))
         return false;
-    }
 
-    if (fromRow == toRow && fromColumn == toColumn)
-    {
-        return false;
-    }
-
-    ChessPiece *piece = board[fromRow][fromColumn];
-
+    ChessPiece *piece = getPiece(fromRow, fromColumn);
     if (piece == nullptr)
-    {
         return false;
-    }
-
-    ChessPiece *target = board[toRow][toColumn];
-
-    // Cannot capture a piece with the same color
-    if (target != nullptr && target->getColor() == piece->getColor())
-    {
-        return false;
-    }
 
     return piece->canMoveToLocation(toRow, toColumn);
 }
 
-// Part 2 functions
 bool ChessBoard::movePiece(int fromRow, int fromColumn, int toRow, int toColumn)
 {
-    // Check if both positions are on the board
     if (!inBounds(fromRow, fromColumn) || !inBounds(toRow, toColumn))
     {
         return false;
     }
 
-    // Check if the move is valid
     if (!isValidMove(fromRow, fromColumn, toRow, toColumn))
     {
         return false;
@@ -301,8 +257,24 @@ bool ChessBoard::movePiece(int fromRow, int fromColumn, int toRow, int toColumn)
     return true;
 }
 
-bool ChessBoard::isPieceUnderThreat(int, int)
+bool ChessBoard::isPieceUnderThreat(int row, int column)
 {
+    if (!inBounds(row, column))
+        return false;
+
+    ChessPiece *piece = getPiece(row, column);
+    if (piece == nullptr)
+        return false;
+
+    for (int r = 0; r < numRows; r++)
+    {
+        for (int c = 0; c < numCols; c++)
+        {
+            ChessPiece *other = getPiece(r, c);
+            if (other != nullptr && other->getColor() != piece->getColor() && other->canMoveToLocation(row, column))
+                return true;
+        }
+    }
     return false;
 }
 

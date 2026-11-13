@@ -17,8 +17,9 @@
     int column;
 
     void setType(Type newType);
+    bool canLandOn(int toRow, int toColumn);
 
-  
+
   public:
 
     ChessBoard &getBoard() { return board; }
