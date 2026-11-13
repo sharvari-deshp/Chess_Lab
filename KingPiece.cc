@@ -9,6 +9,7 @@ KingPiece::KingPiece(ChessBoard &board, Color color, int row, int column)
     setType(King);
 }
 
+//checks validity of kingpiece movement
 bool KingPiece::canMoveToLocation(int toRow, int toColumn)
 {
     int dRow = toRow - getRow();

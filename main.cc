@@ -401,6 +401,110 @@ void test_move_from_empty()
     assert(b.movePiece(0, 3, 1, 2));
 }
 
+
+void test_king_movement()
+{
+    Student::ChessBoard b(5, 5);
+    b.createChessPiece(White, King, 2, 2);
+
+    // Test all eight directions
+    assert(b.isValidMove(2, 2, 1, 2)); // Up
+    assert(b.isValidMove(2, 2, 3, 2)); // Down
+    assert(b.isValidMove(2, 2, 2, 1)); // Left
+    assert(b.isValidMove(2, 2, 2, 3)); // Right
+    assert(b.isValidMove(2, 2, 1, 1)); // Up-left
+    assert(b.isValidMove(2, 2, 1, 3)); // Up-right
+    assert(b.isValidMove(2, 2, 3, 1)); // Down-left
+    assert(b.isValidMove(2, 2, 3, 3)); // Down-right
+
+    // King cannot stay in place
+    assert(!b.isValidMove(2, 2, 2, 2));
+
+    // King cannot move more than one square
+    assert(!b.isValidMove(2, 2, 0, 2));
+    assert(!b.isValidMove(2, 2, 4, 2));
+    assert(!b.isValidMove(2, 2, 2, 0));
+    assert(!b.isValidMove(2, 2, 2, 4));
+    assert(!b.isValidMove(2, 2, 4, 4));
+
+    // Out of bounds
+    assert(!b.isValidMove(2, 2, -1, 2));
+    assert(!b.isValidMove(2, 2, 2, 5));
+}
+
+
+void test_king_captures()
+{
+    Student::ChessBoard b(5, 5);
+
+    b.createChessPiece(White, King, 2, 2);
+    b.createChessPiece(Black, Pawn, 3, 2);
+    b.createChessPiece(White, Pawn, 1, 2);
+
+    // King can capture enemy piece
+    assert(b.isValidMove(2, 2, 3, 2));
+
+    // King cannot land on friendly piece
+    assert(!b.isValidMove(2, 2, 1, 2));
+
+    // Test King in corner
+    Student::ChessBoard corner(5, 5);
+    corner.createChessPiece(White, King, 0, 0);
+
+    assert(corner.isValidMove(0, 0, 0, 1));
+    assert(corner.isValidMove(0, 0, 1, 0));
+    assert(corner.isValidMove(0, 0, 1, 1));
+
+    // Cannot move outside the board
+    assert(!corner.isValidMove(0, 0, -1, 0));
+    assert(!corner.isValidMove(0, 0, 0, -1));
+
+    // Cannot move two squares
+    assert(!corner.isValidMove(0, 0, 2, 0));
+    assert(!corner.isValidMove(0, 0, 0, 2));
+}
+
+
+void test_king_threats()
+{
+    // Rook threatening King
+    Student::ChessBoard b1(5, 5);
+    b1.createChessPiece(White, King, 2, 2);
+    b1.createChessPiece(Black, Rook, 2, 4);
+
+    assert(b1.isPieceUnderThreat(2, 2));
+
+    // Block rook's path
+    b1.createChessPiece(White, Pawn, 2, 3);
+    assert(!b1.isPieceUnderThreat(2, 2));
+
+    // Bishop threatening King
+    Student::ChessBoard b2(5, 5);
+    b2.createChessPiece(White, King, 2, 2);
+    b2.createChessPiece(Black, Bishop, 0, 0);
+
+    assert(b2.isPieceUnderThreat(2, 2));
+
+    // Block bishop's path
+    b2.createChessPiece(White, Pawn, 1, 1);
+    assert(!b2.isPieceUnderThreat(2, 2));
+
+    // Black Pawn threatening King diagonally
+    Student::ChessBoard b3(5, 5);
+    b3.createChessPiece(White, King, 2, 2);
+    b3.createChessPiece(Black, Pawn, 1, 1);
+
+    assert(b3.isPieceUnderThreat(2, 2));
+
+    // Pawn cannot attack straight forward
+    Student::ChessBoard b4(5, 5);
+    b4.createChessPiece(White, King, 2, 2);
+    b4.createChessPiece(Black, Pawn, 1, 2);
+
+    assert(!b4.isPieceUnderThreat(2, 2));
+}
+
+
 int main()
 {
     test_part1_4x4_1();
@@ -417,5 +521,10 @@ int main()
     test_move_invalid_then_valid();
     test_move_pawn_two_step();
     test_move_from_empty();
+
+    //tests for checkpoint 3
+    test_king_movement();
+    test_king_captures();
+    test_king_threats();
     return EXIT_SUCCESS;
 }
